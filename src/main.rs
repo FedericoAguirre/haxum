@@ -1,6 +1,10 @@
 use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::get};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+
+// This is a function  that returns a text response with a status code of 200
+async fn ping_root() -> impl IntoResponse {
+    (StatusCode::OK, "PONG")
+}
 
 // Add to Cargo.toml file serde and serde-json to use Serialize and Deserialize
 #[derive(Deserialize, Serialize)]
@@ -23,7 +27,9 @@ async fn hello_world() -> impl IntoResponse {
 #[tokio::main]
 async fn main() {
     // build our application with a single route
-    let app = Router::new().route("/", get(hello_world));
+    let app = Router::new()
+        .route("/", get(ping_root))
+        .route("/hello", get(hello_world));
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
