@@ -17,11 +17,13 @@ pub struct StringBody {
 // This can be a tuple of (StatusCode, Json<T>) or any other type that implements IntoResponse
 // In this case we are returning a tuple of (StatusCode, Json<T>)
 async fn hello_world() -> impl IntoResponse {
-    let response: StringBody = StringBody {
-        key: "Hello".to_string(),
-        value: "World".to_string(),
-    };
-    (StatusCode::OK, Json(response))
+    (
+        StatusCode::OK,
+        Json(StringBody {
+            key: "Hello".to_string(),
+            value: "World".to_string(),
+        }),
+    )
 }
 
 #[tokio::main]
