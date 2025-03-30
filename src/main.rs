@@ -1,10 +1,6 @@
 use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::get};
+use haxum::controllers::ping as ping_controller;
 use haxum::models::string_body::StringBody;
-
-// This is a function  that returns a text response with a status code of 200
-async fn ping_root() -> impl IntoResponse {
-    (StatusCode::OK, "PONG")
-}
 
 // The easiest way to implement a handler is to use async functions that return a type that implements IntoResponse
 // This can be a tuple of (StatusCode, Json<T>) or any other type that implements IntoResponse
@@ -20,8 +16,8 @@ async fn hello_world() -> impl IntoResponse {
 async fn main() {
     // build our application with a single route
     let app = Router::new()
-        .route("/", get(ping_root))
-        .route("/hello", get(hello_world));
+        .route("/hello", get(hello_world))
+        .merge(ping_controller::routes());
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
