@@ -1,7 +1,7 @@
 // Import the necessary models
 use crate::models::string_body::StringBody;
 
-// Impor the necessary axum API modules
+// Import the necessary axum API modules
 use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::get};
 
 // The easiest way to implement a handler is to use async functions that return a type that implements IntoResponse
