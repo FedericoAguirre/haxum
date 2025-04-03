@@ -2,7 +2,13 @@
 use crate::models::string_body::StringBody;
 
 // Import the necessary axum API modules
-use axum::{Json, Router, extract::Path, http::StatusCode, response::IntoResponse, routing::get};
+use axum::{
+    Router,
+    extract::{Json, Path},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post},
+};
 
 // Used to seriealize in line
 use serde_json::json;
@@ -32,8 +38,28 @@ async fn get_string(Path(key): Path<String>) -> impl IntoResponse {
     }
 }
 
+async fn set_string(Json(string_body): Json<StringBody>) -> impl IntoResponse {
+    // Here you would typically save the string to a database or perform some action
+    // For this example, we will just return the string back
+
+    // TODO: Manage HTTP/1.1 415 Unsupported Media Type error
+    // TODO: Manage HTTP/1.1 422 Unprocessable Entity error
+
+    // if !string_body.key.chars().all(char::is_alphanumeric) {
+    //     return (
+    //         StatusCode::UNPROCESSABLE_ENTITY,
+    //         Json(json!({"error": "Key must be alphanumeric"})),
+    //     )
+    //         .into_response();
+    // }
+
+    (StatusCode::OK, Json(string_body)).into_response()
+}
+
 // The routes function is where we define the routes for this controller
 // The routes function is called in the main.rs file to register the routes with the axum router
 pub fn routes() -> Router {
-    Router::new().route("/get_string/{key}", get(move |key| get_string(key)))
+    Router::new()
+        .route("/get_string/{key}", get(move |key| get_string(key)))
+        .route("/set_string", post(set_string))
 }

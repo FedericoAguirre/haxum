@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 /// A struct that represents a key-value pair
 pub struct StringBody {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
 }
 
 impl StringBody {
