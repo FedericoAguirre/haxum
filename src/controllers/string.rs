@@ -13,6 +13,9 @@ use axum::{
 // Used to seriealize in line
 use serde_json::json;
 
+// Use regex to validate the request body
+use regex::Regex;
+
 // The easiest way to implement a handler is to use async functions that return a type that implements IntoResponse
 // This can be a tuple of (StatusCode, Json<T>) or any other type that implements IntoResponse
 // In this case we are returning a tuple of (StatusCode, Json<T>)
@@ -45,13 +48,16 @@ async fn set_string(Json(string_body): Json<StringBody>) -> impl IntoResponse {
     // TODO: Manage HTTP/1.1 415 Unsupported Media Type error
     // TODO: Manage HTTP/1.1 422 Unprocessable Entity error
 
-    // if !string_body.key.chars().all(char::is_alphanumeric) {
-    //     return (
-    //         StatusCode::UNPROCESSABLE_ENTITY,
-    //         Json(json!({"error": "Key must be alphanumeric"})),
-    //     )
-    //         .into_response();
-    // }
+    let key_pattern = Regex::new(r"^[a-zA-Z0-9:\-_]+$").unwrap();
+    let value_pattern = Regex::new(r"^.+$").unwrap();
+
+    if !key_pattern.is_match(&string_body.key) || !value_pattern.is_match(&string_body.value) {
+        return (
+            StatusCode::UNPROCESSABLE_ENTITY,
+            Json(json!({"error": "Key or value is in invalid format"})),
+        )
+            .into_response();
+    }
 
     (StatusCode::OK, Json(string_body)).into_response()
 }
