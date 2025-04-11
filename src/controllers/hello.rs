@@ -19,3 +19,24 @@ async fn hello_world() -> impl IntoResponse {
 pub fn routes() -> Router {
     Router::new().route("/hello", get(hello_world))
 }
+
+// create a test module for the hello controller
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::StatusCode;
+    use axum::test_helpers::TestClient;
+
+    #[tokio::test]
+    async fn test_hello_world() {
+        let app: axum::routing::Router =
+            axum::routing::Router::new().route("/hello", get(hello_world));
+
+        let response = TestClient::new(app).get("/hello").await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let string_body: StringBody = response.json::<StringBody>().await;
+        assert_eq!(string_body.key, "hello");
+        assert_eq!(string_body.value, "world");
+    }
+}
