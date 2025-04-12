@@ -31,9 +31,7 @@ mod tests {
     async fn test_hello_world() {
         let app: axum::routing::Router =
             axum::routing::Router::new().route("/hello", get(hello_world));
-
         let response = TestClient::new(app).get("/hello").await;
-
         assert_eq!(response.status(), StatusCode::OK);
         let string_body: StringBody = response.json::<StringBody>().await;
         assert_eq!(string_body.key, "hello");
