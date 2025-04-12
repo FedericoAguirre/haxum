@@ -11,3 +11,18 @@ async fn ping_root() -> impl IntoResponse {
 pub fn routes() -> Router {
     Router::new().route("/", get(ping_root))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::StatusCode;
+    use axum::test_helpers::TestClient;
+
+    #[tokio::test]
+    async fn test_ping_root() {
+        let app: axum::routing::Router = axum::routing::Router::new().route("/", get(ping_root));
+        let response = TestClient::new(app).get("/").await;
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.text().await, "PONG");
+    }
+}
