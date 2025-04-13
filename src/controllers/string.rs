@@ -10,7 +10,7 @@ use axum::{
     routing::{get, post},
 };
 
-// Used to seriealize in line
+// Used to serialize in line
 use serde_json::json;
 
 // Use regex to validate the request body
@@ -68,4 +68,67 @@ pub fn routes() -> Router {
     Router::new()
         .route("/get_string/{key}", get(move |key| get_string(key)))
         .route("/set_string", post(set_string))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::StatusCode;
+    use axum::test_helpers::TestClient;
+
+    #[tokio::test]
+    async fn test_get_string_cases() {
+        let app: axum::routing::Router = axum::routing::Router::new()
+            .route("/get_string/{key}", get(move |key| get_string(key)));
+
+        struct TestCase<'a> {
+            key: &'a str,
+            expected_status: StatusCode,
+            expected_body: serde_json::Value,
+        }
+
+        let cases = vec![
+            TestCase {
+                key: "hello",
+                expected_status: StatusCode::OK,
+                expected_body: serde_json::json!({
+                    "key": "hello",
+                    "value": "world"
+                }),
+            },
+            TestCase {
+                key: "damn",
+                expected_status: StatusCode::INTERNAL_SERVER_ERROR,
+                expected_body: serde_json::json!({
+                    "error": "SERVER IS DOWN"
+                }),
+            },
+            TestCase {
+                key: "other",
+                expected_status: StatusCode::NOT_FOUND,
+                expected_body: serde_json::json!({
+                    "error": "NOT FOUND"
+                }),
+            },
+        ];
+
+        let client = TestClient::new(app);
+
+        for case in cases {
+            let response = client.get(&format!("/get_string/{}", case.key)).await;
+            assert_eq!(
+                response.status(),
+                case.expected_status,
+                "Status mismatch for key: {}",
+                case.key
+            );
+
+            let body: serde_json::Value = response.json::<serde_json::Value>().await;
+            assert_eq!(
+                body, case.expected_body,
+                "Body mismatch for key: {}",
+                case.key
+            );
+        }
+    }
 }
