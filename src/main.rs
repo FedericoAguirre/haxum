@@ -1,20 +1,10 @@
 use axum::Router;
 use haxum::router::router::create_router;
-use tracing_subscriber::fmt::{self};
+use haxum::services::tracing as tracing_service;
 
 #[tokio::main]
 async fn main() {
-    // Configure a custom event formatter
-    let format = fmt::format()
-        .with_level(true) // don't include levels in formatted output
-        .with_target(true) // don't include targets
-        .with_thread_ids(true) // include the thread ID of the current thread
-        .with_thread_names(true) // include the name of the current thread
-        .with_timer(fmt::time::ChronoLocal::rfc_3339()); // use RFC 3339 format for timestamps
-
-    // Create a `fmt` subscriber that uses our custom event format, and set it
-    // as the default.
-    tracing_subscriber::fmt().event_format(format).init();
+    tracing_service::init().await;
     tracing::info!("Starting haxum server...");
 
     let app: Router = create_router().await;
