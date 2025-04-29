@@ -1,5 +1,5 @@
 use axum::Router;
-// We import the controllerrs here so we can use them in the create_router function
+// We import the controllers here so we can use them in the create_router function
 use crate::controllers::{
     hello as hello_controller, ping as ping_controller, string as string_controller,
 };
