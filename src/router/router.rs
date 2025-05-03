@@ -6,7 +6,7 @@ use crate::controllers::{
     hello as hello_controller, ping as ping_controller, string as string_controller,
 };
 
-pub async fn create_router(app_state: State<AppState>) -> Router {
+pub async fn create_router(app_state: AppState) -> Router {
     // Create a new router and merge all the controllers into it
     Router::new()
         .merge(hello_controller::routes())
