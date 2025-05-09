@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::models::app_state::AppState;
 use axum::Router;
 use axum::extract::State;
@@ -6,11 +8,11 @@ use crate::controllers::{
     hello as hello_controller, ping as ping_controller, string as string_controller,
 };
 
-pub async fn create_router(app_state: AppState) -> Router {
+pub async fn create_router(State(state): State<Arc<AppState>>) -> Router {
     // Create a new router and merge all the controllers into it
     Router::new()
         .merge(hello_controller::routes())
-        .merge(ping_controller::routes(app_state))
+        .merge(ping_controller::routes((State, state)))
         .merge(string_controller::routes())
 }
 

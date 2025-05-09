@@ -1,11 +1,12 @@
+use super::super::services::redis_service::ping;
 use crate::models::app_state::AppState;
 use axum::{Router, extract::State, http::StatusCode, response::IntoResponse, routing::get};
+use std::sync::Arc;
 
-use super::super::services::redis_service::ping;
 // The easiest way to implement a handler is to use async functions that return a type that implements IntoResponse
 // This can be a tuple of (StatusCode, a' string) or any other type that implements IntoResponse
-async fn ping_root(app_state: AppState) -> impl IntoResponse {
-    let result = ping(&app_state.redis_pool).await;
+async fn ping_root(state: State<Arc<AppState>>) -> impl IntoResponse {
+    let result = ping(&state.redis_pool).await;
     match result {
         Ok(message) => (StatusCode::OK, message),
         Err(_) => (
@@ -17,7 +18,7 @@ async fn ping_root(app_state: AppState) -> impl IntoResponse {
 
 // The routes function is where we define the routes for this controller
 // The routes function is called in the main.rs file to register the routes with the axum router
-pub fn routes(state: AppState) -> Router {
+pub fn routes(State(state): State<Arc<AppState>>) -> Router<Arc<AppState>> {
     Router::new().route("/", get(ping_root)).with_state(state)
 }
 
